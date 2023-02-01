@@ -2,27 +2,29 @@
   "name": "greased-rickys-car-repair",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "directories": {
     "lib": "lib"
   },
   "scripts": {
-    "start": "node index.js"
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tolivercrisp/greased-rickys-car-repair.git"
+    "url": "git+https://github.com/tolivercrisp/Employee-Manager-5000.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/tolivercrisp/greased-rickys-car-repair/issues"
+    "url": "https://github.com/tolivercrisp/Employee-Manager-5000/issues"
   },
-  "homepage": "https://github.com/tolivercrisp/greased-rickys-car-repair#readme",
+  "homepage": "https://github.com/tolivercrisp/Employee-Manager-5000#readme",
   "dependencies": {
     "console.table": "^0.10.0",
-    "inquirer": "^8.2.4",
+    "dotenv": "^16.0.3",
+    "inquirer": "^8.2.5",
+    "mysql": "^2.18.1",
     "mysql2": "^2.3.3"
   }
 }

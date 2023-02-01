@@ -1,85 +1,93 @@
-const mysql = require('mysql2');
-const inquirer = require('inquirer');
-const consoleTable = require('console.table');
+const mysql = require("mysql2");
+const inquirer = require("inquirer");
+const cTable = require("console.table");
 
 // Connect to database
 const db = mysql.createConnection(
   {
-    host: 'localhost',
-    // MySQL username,
-    user: 'root',
-    // MySQL password
-    password: 'Password214',
-    database: 'bluth_db'
+    host: "localhost",
+    port: 3306,
+    user: "root",
+    password: "Password214",
+    database: "bluth_db",
   },
-  console.log(`💡 Connected to the [bluth_db] database. 🔌`)
+    console.log(`
+    ----------------------------
+    ✅ MYSQL connection secured.
+    ----------------------------
+  `)
 );
 
-connection.connect(function (err) {
-  if (err) {
-    throw err;
-    console.log('❌ Error Connecting:' + err.stack)
+db.connect(function (err) {
+  if (err) throw err;
+    console.log(`
+    -------------------------------------------------------
+    ✅ Connected to the [ bluth_db ] database as id: ` + db.threadId + `
+    -------------------------------------------------------
+    `
+    );
+    console.log(`
+    -----------------------------------------------
+    🍌 Welcome to the Bluth Family C.M.S system! 🍌
+    -----------------------------------------------
+    `);
+    
+    // Begins the initial Inquirer prompts
+    mainPrompt();
   }
-  console.log(`Welcome to the Bluth Family employee manager.`);
-  console.log("Connected as id " + connection.threadId);
-  initialPrompt();
-});
+);
 
-function initialPrompt() {
+function mainPrompt() {
   inquirer
     .prompt({
+      name: "main",
       type: "list",
-      name: "task",
-      message: "Press (SPACE) to select a category below ...",
+      message: "Press (ENTER) to select a category below ...",
       choices: [
-        "View Employees",
-        "View Employees by Department",
-        "View All Departments",
-        "Add Employee",
-        "Remove Employees",
+        "View ALL Departments",
+        "View ALL Roles",
+        "View ALL Employees",
+        "Add a Department",
+        "Add a Role",
+        "Add an Employee",
         "Update Employee Role",
-        "Add Role",
-        "Add Department",
-        "End",
+        "[-- EXIT --]"
       ],
     })
-    .then(function ({ task }) {
-      switch (task) {
-        case "View Employees":
-          viewEmployee();
-          break;
-
-        case "View Employees by Department":
-          viewEmployeeByDepartment();
-          break;
-
-        case "View All Departments":
+    .then(function ({ main}) {
+      switch (main) {
+        case "View ALL Departments":
           viewAllDepartments();
           break;
 
-        case "Add Employee":
+        case "View ALL Employees":
+          viewAllEmployees();
+          break;
+
+        case "View ALL Roles":
+          viewAllRoles();
+          break;
+
+        case "Add a Department":
+          addDepartment();
+          break;
+
+        case "Add an Employee":
           addEmployee();
           break;
 
-        case "Remove Employees":
-          removeEmployees();
+        case "Add a Role":
+          addRole();
           break;
 
         case "Update Employee Role":
           updateEmployeeRole();
           break;
 
-        case "Add Role":
-          addRole();
-          break;
-
-        case "Add Department":
-          addDepartment();
-          break;
-
-        case "End":
-          connection.end();
+        case "[-- EXIT --]":
+          db.end();
           break;
       }
     });
 }
+
