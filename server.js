@@ -8,11 +8,11 @@ const db = mysql.createConnection(
     host: 'localhost',
     // MySQL username,
     user: 'root',
-    // TODO: Add MySQL password here
+    // MySQL password
     password: 'Password214',
-    database: 'employee_db'
+    database: 'bluth_db'
   },
-  console.log(`💡 Connected to the [employee_db] database. 🔌`)
+  console.log(`💡 Connected to the [bluth_db] database. 🔌`)
 );
 
 connection.connect(function (err) {
@@ -20,7 +20,7 @@ connection.connect(function (err) {
     throw err;
     console.log('❌ Error Connecting:' + err.stack)
   }
-  console.log(`Employee Manager Online!`);
+  console.log(`Welcome to the Bluth Family employee manager.`);
   console.log("Connected as id " + connection.threadId);
   initialPrompt();
 });
@@ -30,7 +30,7 @@ function initialPrompt() {
     .prompt({
       type: "list",
       name: "task",
-      message: "Welcome to Employee Manager",
+      message: "Press (SPACE) to select a category below ...",
       choices: [
         "View Employees",
         "View Employees by Department",
