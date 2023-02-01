@@ -91,3 +91,38 @@ function mainPrompt() {
     });
 }
 
+
+function viewAllDepartments() {
+
+}
+
+function viewAllEmployees() {
+
+}
+
+function viewAllRoles() {
+
+}
+
+function addDepartment() {
+
+}
+
+function addEmployee() {
+
+}
+
+function addRole() {
+
+}
+
+function updateEmployeeRole() {
+  
+}
+
+function db.end()
+
+
+
+
+
