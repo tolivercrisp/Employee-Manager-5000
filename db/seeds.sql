@@ -1,8 +1,7 @@
+
+
 -- Insert sample data into the department table
-INSERT INTO department (id, department_name)
-VALUES  (001, 'HR'),
-        (002, 'IT'),
-        (003, 'Marketing');
+INSERT INTO department (name) VALUES ("", "", "", "",);
 
 -- Insert sample data into the role table
 INSERT INTO role (id, title, salary, department_id)
