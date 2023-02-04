@@ -27,9 +27,14 @@ db.connect(function (err) {
     `
     );
     console.log(`
-    ---------------------------------------------------
-      🍌 Welcome to the Bluth Family C.M.S system! 🍌
-    ---------------------------------------------------
+     __________________   .--.
+    |  Welcome to the  |  |__| .-------.
+    |   Bluth Family   |  |=.| |.-----.|
+    |       CMS        |  |--| ||     ||
+    |      SYSTEM!     |  |  | |'-----'|
+    |        🍌        |  |__|~')_____('  
+    |__________________|   
+    
     `);
     
     // Begins the initial Inquirer prompts
@@ -145,7 +150,7 @@ function viewAllEmployees() {
   // Query the database to select all items in 'employee' table
   db.query(`
   
-  SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department, m.first_name AS manager FROM employee e
+  SELECT e.id, e.first_name, e.last_name, r.salary, r.title, d.name AS department, m.first_name AS manager FROM employee e
   LEFT JOIN role r ON e.role_id = r.id
   LEFT JOIN department d ON d.id = r.department_id
   LEFT JOIN employee m ON m.id = e.manager_id
@@ -211,7 +216,7 @@ function addRole() {
     ])
   .then((answer) => {
     const newRoleTitle = answer.newRoleTitle;
-
+    
     db.query(
       `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`,
       [answer.newRoleTitle, answer.newRoleSalary, answer.newRoleDepartment],
@@ -227,9 +232,72 @@ function addRole() {
     });
   };
 
-function addEmployee() {
+  function addEmployee() {
+    db.query(`SELECT * FROM role`, (err, res) => {
+        let roles = res.map((role) => {
+          return {
+            name: role.title,
+            value: role.id,
+          };
+        });
+      });
 
-};
+      
+
+      db.query(
+        `SELECT * FROM employee`, (err, res) => {
+          let managers = res.map((employee) => {
+            return {
+              name: employee.first_name,
+              value: employee.id,
+            };
+          });
+        });
+    inquirer
+      .prompt([
+        {
+          name: "newFirstName",
+          type: "input",
+          message: " 📝 Please enter the FIRST NAME of the new employee:",
+        },
+        {
+          name: "newLastName",
+          type: "input",
+          message: " 📝 Please enter the LAST NAME of the new employee:",
+        },
+        {
+          name: "role",
+          type: "list",
+          message: " 📝 Please select the ROLE of the new employee:",
+          choices: roles,
+        },
+        {
+          name: "manager",
+          type: "list",
+          message: " 📝 Please select the MANAGER of the new employee:",
+          choices: managers,
+        },
+      ])
+      .then((answers) => {
+        const newFirstName = answer.newFirstName;
+        const newLastName = answer.newLastName;
+        let FullName = `${newFirstName} ${newLastName}`;
+
+        db.query(
+          `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`,
+          [answers.newFirstName, answers.newLastName, answers.role, answers.manager],
+          (err) => {
+            if (err) throw err;
+            console.log(`
+              --------------------------------------------------
+              👤 New Employee "${FullName}" added successfully!
+              --------------------------------------------------
+              `);
+            mainPrompt();
+          });
+        });
+      };
+  
 
 // --------------------- (End of "Add" functions) ---------------------
 
