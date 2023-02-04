@@ -10,15 +10,6 @@ CREATE TABLE department (
   PRIMARY KEY (id)
 );
 
--- Create the role table
-CREATE TABLE role (
-  id INT NOT NULL AUTO_INCREMENT,
-  title VARCHAR(45) NULL,
-  salary DECIMAL(10.3) NULL,
-  department_id INT NULL,
-  PRIMARY KEY (id)
-);
-
 -- Create the employee table
 CREATE TABLE employee (
   id INT NOT NULL AUTO_INCREMENT,
@@ -28,4 +19,15 @@ CREATE TABLE employee (
   manager_id INT NULL,
   PRIMARY KEY (id)
 );
+
+-- Create the role table
+CREATE TABLE role (
+  id INT NOT NULL AUTO_INCREMENT,
+  title VARCHAR(45) NULL,
+  salary DECIMAL(10.3) NULL,
+  department_id INT NULL,
+  PRIMARY KEY (id)
+);
+
+
 

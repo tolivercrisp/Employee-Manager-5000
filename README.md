@@ -16,6 +16,16 @@
 
 ## Usage
 
+Command line stuff:
+
+1) mysql - u root -p
+2) enter passsword
+3) SOURCE db/schema.sql
+4) SOURCE db/seeds.sql
+5) exit
+6) npm start
+
+
 
 ## License
 
