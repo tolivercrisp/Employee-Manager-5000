@@ -162,14 +162,70 @@ function viewAllEmployees() {
 
 // --------------------- (Start of "Add" functions) ---------------------
 function addDepartment() {
+  inquirer
+    .prompt({
+      name: "newDepartment",
+      type: "input",
+      message: " 📝 Please enter the NAME of the new department:",
+    })
+    .then((answer) => {
+      const newDepartment = answer.newDepartment;
+
+      db.query(
+        `INSERT INTO department (name) VALUES (?)`,
+        newDepartment,
+        (err, results) => {
+          if (err) throw err;
+          console.log(`
+          -----------------------------------------------------
+          🏠 New Department "${newDepartment}" added successfully!
+          -----------------------------------------------------
+
+          `);
+          mainPrompt();
+        }
+      );
+    });
+  };
 
 
-
-};
 
 function addRole() {
+  inquirer
+    .prompt([
+      {
+        name: "newRoleTitle",
+        type: "input",
+        message: " 📝 Please enter the TITLE of the new role:",
+      },
+      {
+        name: "newRoleSalary",
+        type: "input",
+        message: " 📝 Please enter the SALARY of the new role:",
+      },
+      {
+        name: "newRoleDepartment",
+        type: "input",
+        message: " 📝 Please enter the DEPARTMENT ID of the new role:",
+      },
+    ])
+  .then((answer) => {
+    const newRoleTitle = answer.newRoleTitle;
 
-};
+    db.query(
+      `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`,
+      [answer.newRoleTitle, answer.newRoleSalary, answer.newRoleDepartment],
+      (err, results) => {
+        if (err) throw err;
+        console.log(`
+          --------------------------------------------------
+          🛠️ New Role "${newRoleTitle}" added successfully!
+          --------------------------------------------------
+          `);
+        mainPrompt();
+      });
+    });
+  };
 
 function addEmployee() {
 
