@@ -13,7 +13,7 @@ This project is a Content Management System for a MySQL database for the fiction
 
 1. Clone the project repository to your local machine.
 
-2. Replace all credentials in the .env file with your own respective information (besides the DB_NAME)
+2. Replace all credentials in the .env file with your own respective information (besides the DB_NAME).
 
 
 ## Usage
