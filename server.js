@@ -8,7 +8,7 @@ const dotenv = require('dotenv')
 
 dotenv.config({ path: path.join(__dirname, './.env') })
 
-// Connect to database
+// Create database connection
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
@@ -17,6 +17,7 @@ const db = mysql.createConnection({
   database: process.env.DB_NAME,
 });
 
+// Connect to the database
 db.connect(function (err) {
   if (err) throw err;
   console.log(`
@@ -39,6 +40,7 @@ db.connect(function (err) {
   }
 );
 
+// Displays the CMS system main menu
 function mainPrompt() {
   inquirer
     .prompt({
@@ -56,7 +58,6 @@ function mainPrompt() {
       ],
     })
     .then(function ({ main}) {
-
       // Switch statement that handles the user choices and calls the respective function.
       // ex. If "View ALL Departments" is selected, the viewAllDepartments() function is called.
       switch (main) {
@@ -77,7 +78,6 @@ function mainPrompt() {
           addDepartment();
           break;
 
-       
         case "Add a role":
           addRole();
           break;
@@ -120,13 +120,10 @@ function viewAllRoles() {
     ----------------------------
     `
   );
-
+  // Query the database for the role table and append the department table
   db.query(`
-  
   SELECT r.title, r.id, d.name AS department, r.salary FROM role r
   LEFT JOIN department d ON d.id = r.department_id
-  
-    
   `, (err, results) => {
     if (err) throw err;
     console.table(results);
@@ -146,12 +143,10 @@ function viewAllEmployees() {
 
   // Query the database to select all items in 'employee' table
   db.query(`
-  
   SELECT e.id, e.first_name, e.last_name, r.salary, r.title, d.name AS department, m.first_name AS manager FROM employee e
   LEFT JOIN role r ON e.role_id = r.id
   LEFT JOIN department d ON d.id = r.department_id
   LEFT JOIN employee m ON m.id = e.manager_id
-    
   `, (err, results) => {
     if (err) throw err;
     console.table(results);
@@ -168,7 +163,7 @@ function addDepartment() {
     .prompt({
       name: "newDepartment",
       type: "input",
-      message: " 📝 Please enter the NAME of the new department:",
+      message: " 📝 What is the NAME of the new department?",
     })
     .then((answer) => {
       const newDepartment = answer.newDepartment;
@@ -179,10 +174,46 @@ function addDepartment() {
         (err, results) => {
           if (err) throw err;
           console.log(`
-          -----------------------------------------------------
+          --------------------------------------------------------
           🏠 New Department "${newDepartment}" added successfully!
-          -----------------------------------------------------
+          --------------------------------------------------------
+          `);
+          mainPrompt();
+        }
+      );
+    });
+  };
 
+  function addRole() {
+    inquirer
+    .prompt([
+      {
+        name: "title",
+        type: "input",
+        message: "📝 What is the TITLE of the role?",
+      },
+      {
+        name: "salary",
+        type: "input",
+        message: "📝 What is the SALARY for the role?",
+      },
+      {
+        name: "department_id",
+        type: "input",
+        message: "📝 What is the DEPARTMENT ID for the role?",
+      },
+    ])
+    .then((answers) => {
+      // Query to insert user input into the role table
+      db.query(
+        `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`,
+        [answers.title, answers.salary, answers.department_id],
+        (err) => {
+          if (err) throw err;
+          console.log(`
+          -----------------------------------------------------
+          🏠 New Role "${answers.title}" added successfully!
+          -----------------------------------------------------
           `);
           mainPrompt();
         }
@@ -191,41 +222,43 @@ function addDepartment() {
   };
 
   function addEmployee() {
+    // Query to select all from the role table
     db.query("SELECT * FROM role", function(err, roles) {
       if (err) throw err;
+      // Empty array to store queried role data
       let roleTitles = [];
       for (let i = 0; i < roles.length; i++) {
         roleTitles.push(roles[i].title);
       }
+       // Empty array to store queried department data
       db.query("SELECT * FROM employee", function(err, employees) {
         if (err) throw err;
         let employeeNames = [];
         for (let i = 0; i < employees.length; i++) {
           employeeNames.push(`${employees[i].first_name} ${employees[i].last_name}`);
         }
-        employeeNames.push("None");
         inquirer
           .prompt([
             {
               name: "firstName",
               type: "input",
-              message: "What is the employee's first name?"
+              message: "📝 What is the employee's FIRST NAME?"
             },
             {
               name: "lastName",
               type: "input",
-              message: "What is the employee's last name?"
+              message: "📝 What is the employee's LAST NAME?"
             },
             {
               name: "role",
               type: "list",
-              message: "What is the employee's role?",
+              message: "📝 What is the employee's ROLE?",
               choices: roleTitles
             },
             {
               name: "manager",
               type: "list",
-              message: "Who is the employee's manager?",
+              message: "📝 Who is the employee's MANAGER?",
               choices: employeeNames
             }
           ])
@@ -260,9 +293,9 @@ function addDepartment() {
               function(err) {
                 if (err) throw err;
                 console.log(`
-                -----------------------------------------------------------------------------------------
-                💼 Role for employee "${answers.employee}" updated successfully to "${answers.role}"!
-                -----------------------------------------------------------------------------------------
+                ----------------------------------------------------------------
+                💼 New Employee "${answer.firstName} ${answer.lastName}" added!
+                ----------------------------------------------------------------
               `);
                 mainPrompt();
               }
@@ -302,28 +335,28 @@ function updateEmployeeRole() {
           {
             name: "employee",
             type: "list",
-            message: "Which employee's role would you like to update?",
+            message: "📝 Choose the EMPLOYEE  whose role you would like to update:",
             choices: employeeChoices
           },
           {
             name: "role",
             type: "list",
-            message: "What is the new role?",
+            message: "📝 What is their NEW ROLE?",
             choices: roleChoices
           }
         ])
-        .then(function (answers) {
+        .then(function (answer) {
           let query =
             "UPDATE employee SET role_id = (SELECT id FROM role WHERE title = ?) WHERE first_name = ?";
-          db.query(query, [answers.role, answers.employee], function (
+          db.query(query, [answer.role, answer.employee], function (
             err,
             res
           ) {
             if (err) throw err;
             console.log(`
-                -----------------------------------------------------------------------------------------
-                💼 Role for employee "${answers.employee}" updated successfully to "${answers.role}"!
-                -----------------------------------------------------------------------------------------
+                --------------------------------------------------------------------------------------
+                💼 Role for employee "${answer.employee}" updated successfully to "${answer.role}"!
+                --------------------------------------------------------------------------------------
               `);
               mainPrompt();
           });
@@ -331,8 +364,7 @@ function updateEmployeeRole() {
     });
   });
 }
-
-
+ 
 // --------------------- (End of "Update" function) ---------------------
 
 
