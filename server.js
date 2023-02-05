@@ -193,111 +193,87 @@ function addDepartment() {
     });
   };
 
-
-
-function addRole() {
-  inquirer
-    .prompt([
-      {
-        name: "newRoleTitle",
-        type: "input",
-        message: " 📝 Please enter the TITLE of the new role:",
-      },
-      {
-        name: "newRoleSalary",
-        type: "input",
-        message: " 📝 Please enter the SALARY of the new role:",
-      },
-      {
-        name: "newRoleDepartment",
-        type: "input",
-        message: " 📝 Please enter the DEPARTMENT ID of the new role:",
-      },
-    ])
-  .then((answer) => {
-    const newRoleTitle = answer.newRoleTitle;
-    
-    db.query(
-      `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`,
-      [answer.newRoleTitle, answer.newRoleSalary, answer.newRoleDepartment],
-      (err, results) => {
+  function addEmployee() {
+    db.query("SELECT * FROM role", function(err, roles) {
+      if (err) throw err;
+      let roleTitles = [];
+      for (let i = 0; i < roles.length; i++) {
+        roleTitles.push(roles[i].title);
+      }
+      db.query("SELECT * FROM employee", function(err, employees) {
         if (err) throw err;
-        console.log(`
-          --------------------------------------------------
-          🛠️ New Role "${newRoleTitle}" added successfully!
-          --------------------------------------------------
-          `);
-        mainPrompt();
+        let employeeNames = [];
+        for (let i = 0; i < employees.length; i++) {
+          employeeNames.push(`${employees[i].first_name} ${employees[i].last_name}`);
+        }
+        employeeNames.push("None");
+        inquirer
+          .prompt([
+            {
+              name: "firstName",
+              type: "input",
+              message: "What is the employee's first name?"
+            },
+            {
+              name: "lastName",
+              type: "input",
+              message: "What is the employee's last name?"
+            },
+            {
+              name: "role",
+              type: "list",
+              message: "What is the employee's role?",
+              choices: roleTitles
+            },
+            {
+              name: "manager",
+              type: "list",
+              message: "Who is the employee's manager?",
+              choices: employeeNames
+            }
+          ])
+          .then(function(answer) {
+            let roleID;
+            for (let i = 0; i < roles.length; i++) {
+              if (roles[i].title === answer.role) {
+                roleID = roles[i].id;
+              }
+            }
+            let managerID;
+            if (answer.manager === "None") {
+              managerID = null;
+            } else {
+              for (let i = 0; i < employees.length; i++) {
+                if (
+                  `${employees[i].first_name} ${employees[i].last_name}` ===
+                  answer.manager
+                ) {
+                  managerID = employees[i].id;
+                }
+              }
+            }
+            db.query(
+              "INSERT INTO employee SET ?",
+              {
+                first_name: answer.firstName,
+                last_name: answer.lastName,
+                role_id: roleID,
+                manager_id: managerID
+              },
+              function(err) {
+                if (err) throw err;
+                console.log(`
+                -----------------------------------------------------------------------------------------
+                💼 Role for employee "${answers.employee}" updated successfully to "${answers.role}"!
+                -----------------------------------------------------------------------------------------
+              `);
+                mainPrompt();
+              }
+            );
+          });
       });
     });
-  };
-
-  function addEmployee() {
-    db.query(`SELECT * FROM role`, (err, res) => {
-        let roles = res.map((role) => {
-          return {
-            name: role.title,
-            value: role.id,
-          };
-        });
-      });
-
-      
-
-      db.query(
-        `SELECT * FROM employee`, (err, res) => {
-          let managers = res.map((employee) => {
-            return {
-              name: employee.first_name,
-              value: employee.id,
-            };
-          });
-        });
-    inquirer
-      .prompt([
-        {
-          name: "newFirstName",
-          type: "input",
-          message: " 📝 Please enter the FIRST NAME of the new employee:",
-        },
-        {
-          name: "newLastName",
-          type: "input",
-          message: " 📝 Please enter the LAST NAME of the new employee:",
-        },
-        {
-          name: "role",
-          type: "list",
-          message: " 📝 Please select the ROLE of the new employee:",
-          choices: roles,
-        },
-        {
-          name: "manager",
-          type: "list",
-          message: " 📝 Please select the MANAGER of the new employee:",
-          choices: managers,
-        },
-      ])
-      .then((answers) => {
-        const newFirstName = answer.newFirstName;
-        const newLastName = answer.newLastName;
-        let FullName = `${newFirstName} ${newLastName}`;
-
-        db.query(
-          `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`,
-          [answers.newFirstName, answers.newLastName, answers.role, answers.manager],
-          (err) => {
-            if (err) throw err;
-            console.log(`
-              --------------------------------------------------
-              👤 New Employee "${FullName}" added successfully!
-              --------------------------------------------------
-              `);
-            mainPrompt();
-          });
-        });
-      };
-  
+  }
 
 // --------------------- (End of "Add" functions) ---------------------
 
@@ -305,8 +281,61 @@ function addRole() {
 // --------------------- (Start of "Update" function) ---------------------
 
 function updateEmployeeRole() {
+  let query =
+    "SELECT employee.first_name, role.title FROM employee INNER JOIN role ON employee.role_id = role.id";
+  db.query(query, function (err, res) {
+    if (err) throw err;
+    let employeeChoices = res.map(employee => {
+      return {
+        name: `${employee.first_name} (${employee.title})`,
+        value: employee.first_name
+      };
+    });
+    let roleChoices;
+    db.query("SELECT title FROM role", function (err, res) {
+      if (err) throw err;
+      roleChoices = res.map(role => {
+        return {
+          name: role.title,
+          value: role.title
+        };
+      });
+      inquirer
+        .prompt([
+          {
+            name: "employee",
+            type: "list",
+            message: "Which employee's role would you like to update?",
+            choices: employeeChoices
+          },
+          {
+            name: "role",
+            type: "list",
+            message: "What is the new role?",
+            choices: roleChoices
+          }
+        ])
+        .then(function (answers) {
+          let query =
+            "UPDATE employee SET role_id = (SELECT id FROM role WHERE title = ?) WHERE first_name = ?";
+          db.query(query, [answers.role, answers.employee], function (
+            err,
+            res
+          ) {
+            if (err) throw err;
+            console.log(`
+                -----------------------------------------------------------------------------------------
+                💼 Role for employee "${answers.employee}" updated successfully to "${answers.role}"!
+                -----------------------------------------------------------------------------------------
+              `);
+              mainPrompt();
+          });
+        });
+    });
+  });
+}
 
-};
+
 
 // --------------------- (End of "Update" function) ---------------------
 
