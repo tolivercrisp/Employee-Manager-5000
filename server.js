@@ -2,30 +2,28 @@ const mysql = require("mysql2");
 const inquirer = require("inquirer");
 const consoleTable = require("console.table");
 
+// .env file configuration
+const path = require('path')
+const dotenv = require('dotenv')
+
+dotenv.config({ path: path.join(__dirname, './.env') })
+
 // Connect to database
-const db = mysql.createConnection(
-  {
-    host: "localhost",
-    port: 3306,
-    user: "root",
-    password: "Password214",
-    database: "bluth_db",
-  },
-    console.log(`
-    --------------------------------
-      ✅ MYSQL connection secured.
-    --------------------------------
-  `)
-);
+const db = mysql.createConnection({
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+});
 
 db.connect(function (err) {
   if (err) throw err;
-    console.log(`
+  console.log(`
     ---------------------------------------------------------
-      ✅ Connected to the [ bluth_db ] database as id: ` + db.threadId + `
+      ✅ Connected to the [ ${process.env.DB_NAME} ] database as id: ` + db.threadId + `
     ---------------------------------------------------------
-    `
-    );
+  `);
     console.log(`
      __________________   .--.
     |  Welcome to the  |  |__| .-------.
@@ -36,7 +34,6 @@ db.connect(function (err) {
     |__________________|   
     
     `);
-    
     // Begins the initial Inquirer prompts
     mainPrompt();
   }
@@ -334,7 +331,6 @@ function updateEmployeeRole() {
     });
   });
 }
-
 
 
 // --------------------- (End of "Update" function) ---------------------
