@@ -7,7 +7,9 @@ This project is a Content Management System for a MySQL database for the fiction
 ## Table of Contents
   - [Installation](#installation)
   - [Usage](#usage)
+  - [License](#license)
   - [Questions](#questions)
+ 
 
 ## Installation
 
